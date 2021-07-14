@@ -5,27 +5,27 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"strings"
+
+	// "strings"
+	"net/url"
 	"time"
+
+	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
-/*
-I think there are many different ways for us to generate an id for the given url.
-In this demo I just put together a random combination of upper case, lower case, and numbers.
- For this example, I have the id length start at 1 and generate longer length ids if any overlapping occures (see main).
-*/
 func genID(length int) string {
-	cap := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	low := "abcdefghijklmnopqrstuvwxyz"
-	num := "0123456789"
 
-	var b strings.Builder
-	chars := []rune(cap + low + num)
-	for i := 0; i < length; i++ {
-		b.WriteRune(chars[rand.Intn(len(chars))])
+	id, err := gonanoid.New()
+	if err != nil {
+		panic(err)
 	}
-	str := b.String()
-	return str
+	fmt.Printf("Generated id: %s\n", id)
+	return id
+}
+
+func isUrl(str string) bool {
+	u, err := url.Parse(str)
+	return err == nil && u.Scheme != "" && u.Host != ""
 }
 
 /*
@@ -54,14 +54,18 @@ func main() {
 			fmt.Println("Please paste your url: ")
 			sc.Scan()
 			inputURL := sc.Text()
-			for {
-				currID := genID(idLength)
-				if _, ok := M[currID]; !ok {
-					M[currID] = inputURL
-					break
-				} else {
-					idLength += 1
+			if isUrl(inputURL) {
+				for {
+					currID := genID(idLength)
+					if _, ok := M[currID]; !ok {
+						M[currID] = inputURL
+						break
+					} else {
+						idLength += 1
+					}
 				}
+			} else {
+				fmt.Println("invalid url")
 			}
 		} else if input == "l" || input == "L" {
 			fmt.Println("Please paste an ID: ")
