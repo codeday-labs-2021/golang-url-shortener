@@ -15,7 +15,7 @@ import (
 
 func genID(length int) string {
 
-	id, err := gonanoid.New()
+	id, err := gonanoid.New(length)
 	if err != nil {
 		panic(err)
 	}
@@ -34,7 +34,7 @@ in our case, the dictionary will probably be turned into a database or something
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	M := make(map[string]string)
-	idLength := 1
+	idLength := 3
 	for {
 		fmt.Println("")
 		fmt.Println("Type (c/C) to check the stored data for this run")
