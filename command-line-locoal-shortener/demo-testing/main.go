@@ -2,15 +2,13 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
-
-	// "time"
-	"encoding/json"
 
 	"github.com/gin-gonic/gin"
 	gonanoid "github.com/matoous/go-nanoid/v2"
@@ -36,9 +34,6 @@ type urldatabase struct {
 	LongURL string `json:"longURL"`
 }
 
-/*
-in our case, the dictionary will probably be turned into a database or something.
-*/
 func main() {
 
 	sc := bufio.NewScanner(os.Stdin)
@@ -57,25 +52,22 @@ func main() {
 		if err := json.Unmarshal(byteValue, &dataArray); err != nil {
 			log.Println(err)
 		}
+
 		jsonFile.Close()
 		r := gin.Default()
 
-		r.GET("/test", func(c *gin.Context) {
-			c.Request.URL.Path = "/test2"
-			r.HandleContext(c)
-		})
-		r.GET("/test2", func(c *gin.Context) {
+		r.GET("/home", func(c *gin.Context) {
 			c.JSON(200, gin.H{"hello": "world"})
 		})
 
 		for i := range dataArray {
-			fmt.Println(dataArray[i].LongURL)
-			fmt.Println(dataArray[i].UrlID)
 			r.GET(dataArray[i].UrlID, func(c *gin.Context) {
 				c.Redirect(http.StatusMovedPermanently, dataArray[i].LongURL)
 			})
 		}
-
+		for _, v := range dataArray {
+			fmt.Println("localhost:8080/" + v.UrlID + "          " + v.LongURL)
+		}
 		r.Run(":8080")
 
 	} else {
@@ -98,7 +90,7 @@ func main() {
 			fmt.Println("")
 			fmt.Println("Type (c/C) to check the stored data for this run")
 			fmt.Println("Type (s/S) to shorten/store a url")
-			fmt.Println("Type (l/L) to loop up a url using a key/id")
+			fmt.Println("Type (l/L) to look up a url using a key/id")
 			fmt.Print("Type anything else to quit:  ")
 
 			sc.Scan()
@@ -117,22 +109,10 @@ func main() {
 						currID := genID(idLength)
 						if _, ok := M[currID]; !ok {
 							M[currID] = inputURL
-							// r.GET(currID, func(c *gin.Context) {
-							// 	c.Redirect(http.StatusMovedPermanently, inputURL)
-							// })
-							// data := urldatabase{
-							// 	UrlID:   currID,
-							// 	LongURL: inputURL,
-							// }
-							// fmt.Println(data)
 							dataArray = append(dataArray, urldatabase{UrlID: currID, LongURL: inputURL})
 							for _, v := range dataArray {
 								fmt.Println(v)
 							}
-							// file, _ := json.MarshalIndent(data, "", " ")
-							// fmt.Print(string(file))
-							// ioutil.WriteFile("urlmap.json", file, 0644)
-
 							break
 						} else {
 							idLength += 1
