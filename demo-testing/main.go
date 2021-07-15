@@ -3,11 +3,14 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"net/url"
 	"os"
 
 	// "time"
-	"net/http"
+	"encoding/json"
 
 	"github.com/gin-gonic/gin"
 	gonanoid "github.com/matoous/go-nanoid/v2"
@@ -28,17 +31,33 @@ func isUrl(str string) bool {
 	return err == nil && u.Scheme != "" && u.Host != ""
 }
 
+type urldatabase struct {
+	UrlID   string `json:"urlID"`
+	LongURL string `json:"longURL"`
+}
+
 /*
 in our case, the dictionary will probably be turned into a database or something.
 */
 func main() {
+
 	sc := bufio.NewScanner(os.Stdin)
 	fmt.Println("Type 'r' to run server or 'a' to add urls to the database:  ")
 	sc.Scan()
 	in := sc.Text()
 
 	if in == "r" || in == "R" {
+		var dataArray []urldatabase
 
+		jsonFile, err := os.Open("urlmap.json")
+		if err != nil {
+			fmt.Println(err)
+		}
+		byteValue, _ := ioutil.ReadAll(jsonFile)
+		if err := json.Unmarshal(byteValue, &dataArray); err != nil {
+			log.Println(err)
+		}
+		jsonFile.Close()
 		r := gin.Default()
 
 		r.GET("/test", func(c *gin.Context) {
@@ -49,17 +68,33 @@ func main() {
 			c.JSON(200, gin.H{"hello": "world"})
 		})
 
-		r.GET("/test3", func(c *gin.Context) {
-			c.Redirect(http.StatusMovedPermanently, "http://www.google.com/")
-		})
+		for i := range dataArray {
+			fmt.Println(dataArray[i].LongURL)
+			fmt.Println(dataArray[i].UrlID)
+			r.GET(dataArray[i].UrlID, func(c *gin.Context) {
+				c.Redirect(http.StatusMovedPermanently, dataArray[i].LongURL)
+			})
+		}
 
 		r.Run(":8080")
 
 	} else {
+		var dataArray []urldatabase
+
+		jsonFile, err := os.Open("urlmap.json")
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println("Successfully Opened url.json")
+		byteValue, _ := ioutil.ReadAll(jsonFile)
+		if err := json.Unmarshal(byteValue, &dataArray); err != nil {
+			log.Println(err)
+		}
 
 		M := make(map[string]string)
 		idLength := 3
 		for {
+
 			fmt.Println("")
 			fmt.Println("Type (c/C) to check the stored data for this run")
 			fmt.Println("Type (s/S) to shorten/store a url")
@@ -85,6 +120,18 @@ func main() {
 							// r.GET(currID, func(c *gin.Context) {
 							// 	c.Redirect(http.StatusMovedPermanently, inputURL)
 							// })
+							// data := urldatabase{
+							// 	UrlID:   currID,
+							// 	LongURL: inputURL,
+							// }
+							// fmt.Println(data)
+							dataArray = append(dataArray, urldatabase{UrlID: currID, LongURL: inputURL})
+							for _, v := range dataArray {
+								fmt.Println(v)
+							}
+							// file, _ := json.MarshalIndent(data, "", " ")
+							// fmt.Print(string(file))
+							// ioutil.WriteFile("urlmap.json", file, 0644)
 
 							break
 						} else {
@@ -107,6 +154,13 @@ func main() {
 				break
 			}
 		}
+
+		result, err := json.Marshal(dataArray)
+		if err != nil {
+			log.Println(err)
+		}
+		ioutil.WriteFile("urlmap.json", result, 0644)
+		jsonFile.Close()
 	}
 
 }
