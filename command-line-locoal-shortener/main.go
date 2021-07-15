@@ -142,5 +142,4 @@ func main() {
 		ioutil.WriteFile("urlmap.json", result, 0644)
 		jsonFile.Close()
 	}
-
 }
