@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"reflect"
 
 	"github.com/gin-gonic/gin"
 	gonanoid "github.com/matoous/go-nanoid/v2"
@@ -71,8 +70,6 @@ func main() {
 		}
 
 		jsonFile.Close()
-
-		fmt.Println(reflect.TypeOf(dataArray))
 
 		router := routerSetup(dataArray)
 
