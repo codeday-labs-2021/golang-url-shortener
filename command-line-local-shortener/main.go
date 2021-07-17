@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"reflect"
 
 	"github.com/gin-gonic/gin"
 	gonanoid "github.com/matoous/go-nanoid/v2"
@@ -34,6 +35,22 @@ type urldatabase struct {
 	LongURL string `json:"longURL"`
 }
 
+func routerSetup(data []urldatabase) *gin.Engine {
+	router := gin.Default()
+
+	for i := range data {
+		router.GET(data[i].UrlID, func(c *gin.Context) {
+			c.Redirect(http.StatusMovedPermanently, data[i].LongURL)
+		})
+	}
+
+	router.GET("/home", func(c *gin.Context) {
+		c.JSON(200, gin.H{"hello": "world"})
+	})
+
+	return router
+}
+
 func main() {
 
 	sc := bufio.NewScanner(os.Stdin)
@@ -54,21 +71,15 @@ func main() {
 		}
 
 		jsonFile.Close()
-		r := gin.Default()
 
-		r.GET("/home", func(c *gin.Context) {
-			c.JSON(200, gin.H{"hello": "world"})
-		})
+		fmt.Println(reflect.TypeOf(dataArray))
 
-		for i := range dataArray {
-			r.GET(dataArray[i].UrlID, func(c *gin.Context) {
-				c.Redirect(http.StatusMovedPermanently, dataArray[i].LongURL)
-			})
-		}
+		router := routerSetup(dataArray)
+
 		for _, v := range dataArray {
 			fmt.Println("localhost:8080/" + v.UrlID + "          " + v.LongURL)
 		}
-		r.Run(":8080")
+		router.Run(":8080")
 
 	} else {
 		var dataArray []urldatabase
