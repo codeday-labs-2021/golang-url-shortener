@@ -112,7 +112,6 @@ func getReq(c *gin.Context) {
 			break
 		}
 	}
-
 }
 
 func routerSetup() *gin.Engine {
