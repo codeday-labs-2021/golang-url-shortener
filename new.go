@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bufio"
+	//"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -49,7 +49,7 @@ type urldatabase struct {
 // validate then store
 func valjsonstore(URLinput string) {
 	M := make(map[string]string)
-	sc := bufio.NewScanner(os.Stdin)
+	//sc := bufio.NewScanner(os.Stdin)
 
 	//generage new ID and store
 	idLength := 5
@@ -64,15 +64,13 @@ func valjsonstore(URLinput string) {
 	if err := json.Unmarshal(byteValue, &dataArray); err != nil {
 		log.Println(err)
 	}
-	fmt.Println("Please paste your url: ")
-	sc.Scan()
-	inputURL := sc.Text()
-	if isUrl(inputURL) {
+
+	if isUrl(URLinput) {
 		for {
 			currID := genID(idLength)
 			if _, ok := M[currID]; !ok {
-				M[currID] = inputURL
-				dataArray = append(dataArray, urldatabase{UrlID: currID, LongURL: inputURL})
+				M[currID] = URLinput
+				dataArray = append(dataArray, urldatabase{UrlID: currID, LongURL: URLinput})
 				for _, v := range dataArray {
 					fmt.Println(v)
 				}
@@ -81,6 +79,8 @@ func valjsonstore(URLinput string) {
 				idLength += 1
 			}
 		}
+	} else {
+		fmt.Print("Url not valid")
 	}
 
 }
@@ -97,6 +97,7 @@ func setupRouter() *gin.Engine {
 
 func main() {
 	var URLinput string
+	fmt.Print("Plz paste url")
 	fmt.Scan(&URLinput)
 	//valjsonstore(URLinput)
 	valjsonstore(URLinput)
