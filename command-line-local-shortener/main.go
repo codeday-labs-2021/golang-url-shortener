@@ -34,51 +34,10 @@ type urldatabase struct {
 	LongURL string `json:"longURL"`
 }
 
-func routerSetup(data []urldatabase) *gin.Engine {
-	router := gin.Default()
-
-	for i := range data {
-		router.GET(data[i].UrlID, func(c *gin.Context) {
-			c.Redirect(http.StatusMovedPermanently, data[i].LongURL)
-		})
-	}
-
-	router.GET("/home", func(c *gin.Context) {
-		c.JSON(200, gin.H{"hello": "world"})
-	})
-
-	return router
-}
-
-func main() {
-
+func dataProccess() {
 	sc := bufio.NewScanner(os.Stdin)
-	fmt.Println("Type 'r' to run server or 'a' to add urls to the database:  ")
-	sc.Scan()
-	in := sc.Text()
-
-	if in == "r" || in == "R" {
-		var dataArray []urldatabase
-
-		jsonFile, err := os.Open("urlmap.json")
-		if err != nil {
-			fmt.Println(err)
-		}
-		byteValue, _ := ioutil.ReadAll(jsonFile)
-		if err := json.Unmarshal(byteValue, &dataArray); err != nil {
-			log.Println(err)
-		}
-
-		jsonFile.Close()
-
-		router := routerSetup(dataArray)
-
-		for _, v := range dataArray {
-			fmt.Println("localhost:8080/" + v.UrlID + "          " + v.LongURL)
-		}
-		router.Run(":8080")
-
-	} else {
+	idLength := 3
+	for {
 		var dataArray []urldatabase
 
 		jsonFile, err := os.Open("urlmap.json")
@@ -91,63 +50,87 @@ func main() {
 			log.Println(err)
 		}
 
-		M := make(map[string]string)
-		idLength := 3
-		for {
+		sc.Scan()
+		input := sc.Text()
+		fmt.Println("")
 
-			fmt.Println("")
-			fmt.Println("Type (c/C) to check the stored data for this run")
-			fmt.Println("Type (s/S) to shorten/store a url")
-			fmt.Println("Type (l/L) to look up a url using a key/id")
-			fmt.Print("Type anything else to quit:  ")
-
+		if input == "s" || input == "S" {
+			fmt.Println("Please paste your url: ")
 			sc.Scan()
-			input := sc.Text()
-			fmt.Println("")
-			if input == "c" || input == "C" {
-				for id, url := range M {
-					fmt.Println("ID:", id, "=> URL:", url)
-				}
-			} else if input == "s" || input == "S" {
-				fmt.Println("Please paste your url: ")
-				sc.Scan()
-				inputURL := sc.Text()
-				if isUrl(inputURL) {
-					for {
-						currID := genID(idLength)
-						if _, ok := M[currID]; !ok {
-							M[currID] = inputURL
-							dataArray = append(dataArray, urldatabase{UrlID: currID, LongURL: inputURL})
-							for _, v := range dataArray {
-								fmt.Println(v)
-							}
-							break
-						} else {
-							idLength += 1
-						}
+			inputURL := sc.Text()
+			if isUrl(inputURL) {
+				for {
+					currID := genID(idLength)
+					// if true {
+					dataArray = append(dataArray, urldatabase{UrlID: currID, LongURL: inputURL})
+
+					result, err := json.Marshal(dataArray)
+					if err != nil {
+						log.Println(err)
 					}
-				} else {
-					fmt.Println("invalid url")
-				}
-			} else if input == "l" || input == "L" {
-				fmt.Println("Please paste an ID: ")
-				sc.Scan()
-				inputID := sc.Text()
-				if val, ok := M[inputID]; ok {
-					fmt.Println("Your Url is: " + val)
-				} else {
-					fmt.Println("The ID you provided is invalid")
+					ioutil.WriteFile("urlmap.json", result, 0644)
+					jsonFile.Close()
+
+					for _, v := range dataArray {
+						fmt.Println(v)
+					}
+
+					break
+					// } else {
+					// 	idLength += 1
+					// }
 				}
 			} else {
-				break
+				fmt.Println("invalid url")
 			}
+		} else {
+			break
 		}
-
-		result, err := json.Marshal(dataArray)
-		if err != nil {
-			log.Println(err)
-		}
-		ioutil.WriteFile("urlmap.json", result, 0644)
-		jsonFile.Close()
 	}
+}
+
+func getReq(c *gin.Context) {
+	id := c.Param("id")
+
+	var dataArray []urldatabase
+
+	jsonFile, err := os.Open("urlmap.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	if err := json.Unmarshal(byteValue, &dataArray); err != nil {
+		log.Println(err)
+	}
+
+	jsonFile.Close()
+	fmt.Println(id)
+	for i := range dataArray {
+		if dataArray[i].UrlID == id {
+			fmt.Println("yes")
+			c.Redirect(http.StatusMovedPermanently, dataArray[i].LongURL)
+			break
+		}
+	}
+
+}
+
+func routerSetup() *gin.Engine {
+	router := gin.Default()
+
+	router.GET("/:id", getReq)
+
+	router.GET("/home", func(c *gin.Context) {
+		c.JSON(200, gin.H{"hello": "world"})
+	})
+
+	return router
+}
+
+func main() {
+	dataProccess()
+
+	router := routerSetup()
+
+	router.Run(":8090")
 }
