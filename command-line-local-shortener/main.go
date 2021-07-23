@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	
+
 	"github.com/gin-gonic/gin"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 )
@@ -46,22 +46,22 @@ func dataProccess() {
 			if isUrl(inputURL) {
 				for {
 					currID := genID(idLength)
-					// if true {
-					dataArray[currID] = inputURL
-					result, err := json.Marshal(dataArray)
-					if err != nil {
-						log.Println(err)
-					}
-					ioutil.WriteFile("urlmap.json", result, 0644)
+					if _, exists := dataArray[currID]; !exists {
+						dataArray[currID] = inputURL
+						result, err := json.Marshal(dataArray)
+						if err != nil {
+							log.Println(err)
+						}
+						ioutil.WriteFile("urlmap.json", result, 0644)
 
-					for _, v := range dataArray {
-						fmt.Println(v)
-					}
+						for _, v := range dataArray {
+							fmt.Println(v)
+						}
 
-					break
-					// } else {
-					// 	idLength += 1
-					// }
+						break
+					} else {
+						idLength += 1
+					}
 				}
 			} else {
 				fmt.Println("invalid url")
@@ -76,22 +76,10 @@ func getReq(c *gin.Context) {
 	id := c.Param("id")
 
 	fmt.Println(id)
-	_, exists := dataArray[id]
+	url, exists := dataArray[id]
 	if exists {
-		c.Redirect(http.StatusMovedPermanently, dataArray[id])
+		c.Redirect(http.StatusMovedPermanently, url)
 	}
-}
-
-func routerSetup() *gin.Engine {
-	router := gin.Default()
-
-	router.GET("/:id", getReq)
-
-	router.GET("/home", func(c *gin.Context) {
-		c.JSON(200, gin.H{"hello": "world"})
-	})
-
-	return router
 }
 
 func main() {
@@ -109,10 +97,14 @@ func main() {
 
 	dataProccess()
 
-	router := routerSetup()
+	router := gin.Default()
+
+	router.GET("/:id", getReq)
+
+	router.GET("/home", func(c *gin.Context) {
+		c.JSON(200, gin.H{"hello": "world"})
+	})
 
 	router.Run(":8090")
 
 }
-// example.com/ISq
-// example.com/
