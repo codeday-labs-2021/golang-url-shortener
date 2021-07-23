@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	gonanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/sirupsen/logrus"
 )
 
 var dataArray map[string]string
@@ -20,14 +20,19 @@ func genID(length int) string {
 
 	id, err := gonanoid.New(length)
 	if err != nil {
-		panic(err)
+		logrus.Errorf("error while creating new id: %v", err)
+		os.Exit(1)
 	}
 	return id
 }
 
 func isUrl(str string) bool {
 	u, err := url.Parse(str)
-	return err == nil && u.Scheme != "" && u.Host != ""
+	if err != nil {
+		logrus.Errorf("error parsing url: %v", err)
+		os.Exit(1)
+	}
+	return u.Scheme != "" && u.Host != ""
 }
 
 func dataProccess() {
@@ -50,7 +55,8 @@ func dataProccess() {
 						dataArray[currID] = inputURL
 						result, err := json.Marshal(dataArray)
 						if err != nil {
-							log.Println(err)
+							logrus.Errorf("error while marshalling json: %v", err)
+							os.Exit(1)
 						}
 						ioutil.WriteFile("urlmap.json", result, 0644)
 
@@ -86,13 +92,15 @@ func main() {
 
 	jsonFile, err := os.Open("urlmap.json")
 	if err != nil {
-		fmt.Println(err)
+		logrus.Errorf("error while opening map file: %v", err)
+		os.Exit(1)
 	}
 	defer jsonFile.Close()
 	fmt.Println("Successfully Opened url.json")
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	if err := json.Unmarshal(byteValue, &dataArray); err != nil {
-		log.Println(err)
+		logrus.Errorf("error while unmarshalling json: %v", err)
+		os.Exit(1)
 	}
 
 	dataProccess()
