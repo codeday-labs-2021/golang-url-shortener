@@ -9,10 +9,12 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-
+	
 	"github.com/gin-gonic/gin"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 )
+
+var dataArray map[string]string
 
 func genID(length int) string {
 
@@ -20,7 +22,6 @@ func genID(length int) string {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Generated id: %s\n", id)
 	return id
 }
 
@@ -29,26 +30,10 @@ func isUrl(str string) bool {
 	return err == nil && u.Scheme != "" && u.Host != ""
 }
 
-type urldatabase struct {
-	UrlID   string `json:"urlID"`
-	LongURL string `json:"longURL"`
-}
-
 func dataProccess() {
 	sc := bufio.NewScanner(os.Stdin)
 	idLength := 3
 	for {
-		var dataArray []urldatabase
-
-		jsonFile, err := os.Open("urlmap.json")
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println("Successfully Opened url.json")
-		byteValue, _ := ioutil.ReadAll(jsonFile)
-		if err := json.Unmarshal(byteValue, &dataArray); err != nil {
-			log.Println(err)
-		}
 
 		sc.Scan()
 		input := sc.Text()
@@ -62,14 +47,12 @@ func dataProccess() {
 				for {
 					currID := genID(idLength)
 					// if true {
-					dataArray = append(dataArray, urldatabase{UrlID: currID, LongURL: inputURL})
-
+					dataArray[currID] = inputURL
 					result, err := json.Marshal(dataArray)
 					if err != nil {
 						log.Println(err)
 					}
 					ioutil.WriteFile("urlmap.json", result, 0644)
-					jsonFile.Close()
 
 					for _, v := range dataArray {
 						fmt.Println(v)
@@ -92,27 +75,11 @@ func dataProccess() {
 func getReq(c *gin.Context) {
 	id := c.Param("id")
 
-	var dataArray []urldatabase
-
-	jsonFile, err := os.Open("urlmap.json")
-	if err != nil {
-		fmt.Println(err)
-	}
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-	if err := json.Unmarshal(byteValue, &dataArray); err != nil {
-		log.Println(err)
-	}
-
-	jsonFile.Close()
 	fmt.Println(id)
-	for i := range dataArray {
-		if dataArray[i].UrlID == id {
-			fmt.Println("yes")
-			c.Redirect(http.StatusMovedPermanently, dataArray[i].LongURL)
-			break
-		}
+	_, exists := dataArray[id]
+	if exists {
+		c.Redirect(http.StatusMovedPermanently, dataArray[id])
 	}
-
 }
 
 func routerSetup() *gin.Engine {
@@ -128,9 +95,24 @@ func routerSetup() *gin.Engine {
 }
 
 func main() {
+
+	jsonFile, err := os.Open("urlmap.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer jsonFile.Close()
+	fmt.Println("Successfully Opened url.json")
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	if err := json.Unmarshal(byteValue, &dataArray); err != nil {
+		log.Println(err)
+	}
+
 	dataProccess()
 
 	router := routerSetup()
 
 	router.Run(":8090")
+
 }
+// example.com/ISq
+// example.com/

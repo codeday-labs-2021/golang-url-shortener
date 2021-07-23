@@ -1,1 +1,5 @@
-[{"urlID":"YgO","longURL":"https://golang.org"},{"urlID":"ek2","longURL":"https://golang.org"},{"urlID":"0X-","longURL":"https://github.com"},{"urlID":"uX6","longURL":"https://www.reddit.com"}]
+{
+  "baseball": "https://www.reddit.com",
+  "XWa": "https://stackoverflow.com/questions/51118396/uncaught-syntaxerror-unexpected-end-of-json-input-at-json-parse-anonymous",
+  "dFo": "https://github.com/codeday-labs/golang-url-shortener/blob/brad-test/brad-test/main.go"
+}
