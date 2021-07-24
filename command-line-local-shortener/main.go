@@ -107,12 +107,14 @@ func main() {
 
 	router := gin.Default()
 
+	router.LoadHTMLGlob("templates/*")
 	router.GET("/:id", getReq)
-
 	router.GET("/home", func(c *gin.Context) {
-		c.JSON(200, gin.H{"hello": "world"})
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+			"title": "Main website",
+		})
 	})
 
-	router.Run(":8090")
+	router.Run(":8080")
 
 }
