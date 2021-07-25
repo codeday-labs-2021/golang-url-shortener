@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Golang URL shortener</title>
+</head>
+
+<body>
+    <p>example paragraph<strong>example</strong> example
+        <strong>example</strong>example</p>
+
+    <form action="http://localhost:8090/create" method="POST">
+        <label for="fname">Custom ID (auto generates if left blank):</label><br>
+        <input type="text" id="shortURL" name="shortID"><br>
+        <label for="lname">URL:</label><br>
+        <input type="text" id="longURL" name="longURL"readonly>
+        <button type="submit">Send my greetings</button>
+    </form>
+</body>
+
+</html>
