@@ -109,12 +109,12 @@ func main() {
 
 	router.LoadHTMLGlob("templates/*")
 	router.GET("/:id", getReq)
-	router.GET("/home", func(c *gin.Context) {
+	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"title": "Main website",
 		})
 	})
 
-	router.Run(":8080")
+	router.Run(":8090")
 
 }
