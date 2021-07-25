@@ -88,6 +88,28 @@ func getReq(c *gin.Context) {
 	}
 }
 
+func postReq(c *gin.Context) {
+	longURL := c.PostForm("longURL")
+	urlID := c.PostForm("urlID")
+
+	fmt.Println()
+	fmt.Println("test" + longURL)
+	fmt.Println("test" + urlID)
+	fmt.Println()
+	if longURL == "" {
+		c.String(http.StatusBadRequest, "url field empty")
+		return
+	}
+
+	if urlID == "" {
+		//fix
+		c.String(http.StatusBadRequest, "can't rn")
+		return
+	}
+	c.String(http.StatusOK, "created and stored")
+
+}
+
 func main() {
 
 	jsonFile, err := os.Open("urlmap.json")
@@ -109,6 +131,7 @@ func main() {
 
 	router.LoadHTMLGlob("templates/*")
 	router.GET("/:id", getReq)
+	router.POST("/create", postReq)
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
