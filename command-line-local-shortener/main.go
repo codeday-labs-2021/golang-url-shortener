@@ -15,6 +15,8 @@ import (
 
 var dataArray map[string]string
 
+var SERVER_URL string = "http://localhost:8080"
+
 func genID(length int) string {
 
 	id, err := gonanoid.New(length)
@@ -34,7 +36,7 @@ func isUrl(str string) bool {
 	return u.Scheme != "" && u.Host != ""
 }
 
-func dataProccess(inputURL string) string {
+func dataProccess(inputURL string) (string, error) {
 	idLength := 3
 	if isUrl(inputURL) {
 		for {
@@ -44,17 +46,18 @@ func dataProccess(inputURL string) string {
 				result, err := json.Marshal(dataArray)
 				if err != nil {
 					logrus.Errorf("error while marshalling json: %v", err)
-					os.Exit(1)
+					//os.Exit(1)
+					return "", fmt.Errorf("error marshalling json for URL map: %v", err)
 				}
 				ioutil.WriteFile("urlmap.json", result, 0644)
 
-				return currID
+				return currID, nil
 			} else {
 				idLength += 1
 			}
 		}
 	}
-	return ""
+	return "", fmt.Errorf("input is not valid URL")
 
 }
 
@@ -75,12 +78,12 @@ func postReq(c *gin.Context) {
 		c.String(http.StatusBadRequest, "enter a url to shorten")
 		return
 	} else {
-		result := dataProccess(longURL)
-		if result != "" {
-			c.String(http.StatusOK, "Your new link is: http://localhost:8080/"+result)
+		result, err := dataProccess(longURL)
+		if err != nil {
+			c.String(http.StatusBadRequest, "invalid URL")
 
 		} else {
-			c.String(http.StatusBadRequest, "invalid URL")
+			c.String(http.StatusOK, "Your new link is: %s/%s", SERVER_URL, result)
 		}
 	}
 
