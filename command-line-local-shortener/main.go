@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -35,47 +34,28 @@ func isUrl(str string) bool {
 	return u.Scheme != "" && u.Host != ""
 }
 
-func dataProccess() {
-	sc := bufio.NewScanner(os.Stdin)
+func dataProccess(inputURL string) string {
 	idLength := 3
-	for {
-
-		sc.Scan()
-		input := sc.Text()
-		fmt.Println("")
-
-		if input == "s" || input == "S" {
-			fmt.Println("Please paste your url: ")
-			sc.Scan()
-			inputURL := sc.Text()
-			if isUrl(inputURL) {
-				for {
-					currID := genID(idLength)
-					if _, exists := dataArray[currID]; !exists {
-						dataArray[currID] = inputURL
-						result, err := json.Marshal(dataArray)
-						if err != nil {
-							logrus.Errorf("error while marshalling json: %v", err)
-							os.Exit(1)
-						}
-						ioutil.WriteFile("urlmap.json", result, 0644)
-
-						for _, v := range dataArray {
-							fmt.Println(v)
-						}
-
-						break
-					} else {
-						idLength += 1
-					}
+	if isUrl(inputURL) {
+		for {
+			currID := genID(idLength)
+			if _, exists := dataArray[currID]; !exists {
+				dataArray[currID] = inputURL
+				result, err := json.Marshal(dataArray)
+				if err != nil {
+					logrus.Errorf("error while marshalling json: %v", err)
+					os.Exit(1)
 				}
+				ioutil.WriteFile("urlmap.json", result, 0644)
+
+				return currID
 			} else {
-				fmt.Println("invalid url")
+				idLength += 1
 			}
-		} else {
-			break
 		}
 	}
+	return ""
+
 }
 
 func getReq(c *gin.Context) {
@@ -90,23 +70,19 @@ func getReq(c *gin.Context) {
 
 func postReq(c *gin.Context) {
 	longURL := c.PostForm("longURL")
-	urlID := c.PostForm("urlID")
 
-	fmt.Println()
-	fmt.Println("test" + longURL)
-	fmt.Println("test" + urlID)
-	fmt.Println()
 	if longURL == "" {
-		c.String(http.StatusBadRequest, "url field empty")
+		c.String(http.StatusBadRequest, "enter a url to shorten")
 		return
-	}
+	} else {
+		result := dataProccess(longURL)
+		if result != "" {
+			c.String(http.StatusOK, "Your new link is: http://localhost:8080/"+result)
 
-	if urlID == "" {
-		//fix
-		c.String(http.StatusBadRequest, "can't rn")
-		return
+		} else {
+			c.String(http.StatusBadRequest, "invalid URL")
+		}
 	}
-	c.String(http.StatusOK, "created and stored")
 
 }
 
@@ -125,8 +101,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	dataProccess()
-
 	router := gin.Default()
 
 	router.LoadHTMLGlob("templates/*")
@@ -136,6 +110,6 @@ func main() {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
 
-	router.Run(":8090")
+	router.Run(":8080")
 
 }
