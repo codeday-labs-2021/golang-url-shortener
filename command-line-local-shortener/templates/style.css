@@ -1,0 +1,23 @@
+body {
+  text-align: center;
+}
+
+form {
+  display: inline-block;
+}
+fieldset {
+  align-items: center;
+  margin: 1em;
+}
+div#short {
+  text-align: left;
+  padding-bottom: 5%;
+}
+div#long {
+  text-align: left;
+  padding-bottom: 5%;
+}
+#button {
+  padding: 5%;
+  margin: 1em;
+}

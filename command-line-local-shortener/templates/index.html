@@ -1,21 +1,31 @@
-<!doctype html>
-<html>
-
-<head>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Golang URL shortener</title>
-</head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<body>
-    <p>example paragraph<strong>example</strong> example
-        <strong>example</strong>example</p>
-
+  <body>
+    <!-- <p>example paragraph<strong>example</strong> example
+        <strong>example</strong>example</p>  -->
+    <!-- maybe do an onclick instead of making a whole new form??  -->
     <form action="http://localhost:8080/create" method="POST">
-        <label for="fname">Custom ID (auto generates if left blank):</label><br>
-        <input type="text" id="urlID" name="urlID" readonly><br>
-        <label for="lname">URL:</label><br>
-        <input type="text" id="longURL" name="longURL">
-        <button type="submit">Create</button>
-    </form>
-</body>
+      <h1>URL shortener</h1>
 
+      <fieldset>
+        <div id="short">
+          <label for="fname">Custom ID:</label> <br />
+          <input type="text" id="shortURL" name="shortID" /><br />
+        </div>
+        <div id="long">
+          <label for="lname">URL:</label><br />
+          <input type="text" id="longURL" name="longURL" required /> <br />
+          <button type="submit" id="button">Send my greetings</button>
+        </div>
+      </fieldset>
+    </form>
+  </body>
 </html>
