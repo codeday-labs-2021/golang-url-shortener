@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -14,7 +13,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var dataArray map[string]string
+var DATA_ARRAY map[string]string
+var SERVER_URL string = "http://localhost:8080"
 
 func genID(length int) string {
 
@@ -35,57 +35,56 @@ func isUrl(str string) bool {
 	return u.Scheme != "" && u.Host != ""
 }
 
-func dataProccess() {
-	sc := bufio.NewScanner(os.Stdin)
+func dataProccess(inputURL string) (string, error) {
 	idLength := 3
-	for {
-
-		sc.Scan()
-		input := sc.Text()
-		fmt.Println("")
-
-		if input == "s" || input == "S" {
-			fmt.Println("Please paste your url: ")
-			sc.Scan()
-			inputURL := sc.Text()
-			if isUrl(inputURL) {
-				for {
-					currID := genID(idLength)
-					if _, exists := dataArray[currID]; !exists {
-						dataArray[currID] = inputURL
-						result, err := json.Marshal(dataArray)
-						if err != nil {
-							logrus.Errorf("error while marshalling json: %v", err)
-							os.Exit(1)
-						}
-						ioutil.WriteFile("urlmap.json", result, 0644)
-
-						for _, v := range dataArray {
-							fmt.Println(v)
-						}
-
-						break
-					} else {
-						idLength += 1
-					}
+	if isUrl(inputURL) {
+		for {
+			currID := genID(idLength)
+			if _, exists := DATA_ARRAY[currID]; !exists {
+				DATA_ARRAY[currID] = inputURL
+				result, err := json.Marshal(DATA_ARRAY)
+				if err != nil {
+					logrus.Errorf("error while marshalling json: %v", err)
+					return "", fmt.Errorf("error marshalling json for URL map: %v", err)
 				}
+				ioutil.WriteFile("urlmap.json", result, 0644)
+
+				return currID, nil
 			} else {
-				fmt.Println("invalid url")
+				idLength += 1
 			}
-		} else {
-			break
 		}
 	}
+	return "", fmt.Errorf("input is not valid URL")
+
 }
 
 func getReq(c *gin.Context) {
 	id := c.Param("id")
 
 	fmt.Println(id)
-	url, exists := dataArray[id]
+	url, exists := DATA_ARRAY[id]
 	if exists {
 		c.Redirect(http.StatusMovedPermanently, url)
 	}
+}
+
+func postReq(c *gin.Context) {
+	longURL := c.PostForm("longURL")
+
+	if longURL == "" {
+		c.String(http.StatusBadRequest, "enter a url to shorten")
+		return
+	} else {
+		result, err := dataProccess(longURL)
+		if err != nil {
+			c.String(http.StatusBadRequest, "invalid URL")
+		} else {
+			c.String(http.StatusOK, fmt.Sprintf(
+				"Your new link is: %s/%s", SERVER_URL, result))
+		}
+	}
+
 }
 
 func main() {
@@ -98,21 +97,20 @@ func main() {
 	defer jsonFile.Close()
 	fmt.Println("Successfully Opened url.json")
 	byteValue, _ := ioutil.ReadAll(jsonFile)
-	if err := json.Unmarshal(byteValue, &dataArray); err != nil {
+	if err := json.Unmarshal(byteValue, &DATA_ARRAY); err != nil {
 		logrus.Errorf("error while unmarshalling json: %v", err)
 		os.Exit(1)
 	}
-
-	dataProccess()
 
 	router := gin.Default()
 
 	router.LoadHTMLGlob("templates/*")
 	router.GET("/:id", getReq)
+	router.POST("/create", postReq)
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
 
-	router.Run(":8090")
+	router.Run(":8080")
 
 }
