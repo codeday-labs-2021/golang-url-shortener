@@ -13,8 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var dataArray map[string]string
-
+var DATA_ARRAY map[string]string
 var SERVER_URL string = "http://localhost:8080"
 
 func genID(length int) string {
@@ -41,12 +40,11 @@ func dataProccess(inputURL string) (string, error) {
 	if isUrl(inputURL) {
 		for {
 			currID := genID(idLength)
-			if _, exists := dataArray[currID]; !exists {
-				dataArray[currID] = inputURL
-				result, err := json.Marshal(dataArray)
+			if _, exists := DATA_ARRAY[currID]; !exists {
+				DATA_ARRAY[currID] = inputURL
+				result, err := json.Marshal(DATA_ARRAY)
 				if err != nil {
 					logrus.Errorf("error while marshalling json: %v", err)
-					//os.Exit(1)
 					return "", fmt.Errorf("error marshalling json for URL map: %v", err)
 				}
 				ioutil.WriteFile("urlmap.json", result, 0644)
@@ -65,7 +63,7 @@ func getReq(c *gin.Context) {
 	id := c.Param("id")
 
 	fmt.Println(id)
-	url, exists := dataArray[id]
+	url, exists := DATA_ARRAY[id]
 	if exists {
 		c.Redirect(http.StatusMovedPermanently, url)
 	}
@@ -81,9 +79,9 @@ func postReq(c *gin.Context) {
 		result, err := dataProccess(longURL)
 		if err != nil {
 			c.String(http.StatusBadRequest, "invalid URL")
-
 		} else {
-			c.String(http.StatusOK, "Your new link is: %s/%s", SERVER_URL, result)
+			c.String(http.StatusOK, fmt.Sprintf(
+				"Your new link is: %s/%s", SERVER_URL, result))
 		}
 	}
 
@@ -99,7 +97,7 @@ func main() {
 	defer jsonFile.Close()
 	fmt.Println("Successfully Opened url.json")
 	byteValue, _ := ioutil.ReadAll(jsonFile)
-	if err := json.Unmarshal(byteValue, &dataArray); err != nil {
+	if err := json.Unmarshal(byteValue, &DATA_ARRAY); err != nil {
 		logrus.Errorf("error while unmarshalling json: %v", err)
 		os.Exit(1)
 	}
