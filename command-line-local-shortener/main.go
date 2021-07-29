@@ -16,6 +16,26 @@ import (
 var DATA_ARRAY map[string]string
 var SERVER_URL string = "http://localhost:8080"
 
+type Shorten struct {
+	LongURL  string `json:"longUrl"`
+	ShortURL string `json:"shortUrl"`
+}
+
+type Error struct {
+	ErrCode    int    `json:"ErrCode"`
+	ErrMessage string `json:"ErrMessage"`
+}
+
+var noURL = Error{
+	ErrCode:    400,
+	ErrMessage: "please enter a url to shorten",
+}
+
+var invalidURL = Error{
+	ErrCode:    400,
+	ErrMessage: "invalid URL",
+}
+
 func genID(length int) string {
 
 	id, err := gonanoid.New(length)
@@ -69,22 +89,17 @@ func getReq(c *gin.Context) {
 	}
 }
 
-type Shorten struct {
-	LongURL  string `json:"longUrl"`
-	ShortURL string `json:"shortUrl"`
-}
-
 func postReq(c *gin.Context) {
 	var link Shorten
 	c.BindJSON(&link)
 
 	if link.LongURL == "" {
-		c.JSON(400, "please enter a url to shorten")
+		c.JSON(noURL.ErrCode, noURL.ErrMessage)
 		return
 	}
 	result, err := dataProccess(link.LongURL)
 	if err != nil {
-		c.JSON(400, "invalid URL")
+		c.JSON(invalidURL.ErrCode, invalidURL.ErrMessage)
 		return
 	}
 
