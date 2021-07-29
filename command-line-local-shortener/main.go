@@ -85,6 +85,7 @@ func postReq(c *gin.Context) {
 	result, err := dataProccess(link.LongURL)
 	if err != nil {
 		c.JSON(400, "invalid URL")
+		return
 	}
 
 	response := Shorten{
