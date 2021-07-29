@@ -78,39 +78,23 @@ func postReq(c *gin.Context) {
 	var link Shorten
 	c.BindJSON(&link)
 
-	longUrl := link.LongURL
-	shortenedUrl := link.ShortURL
-
 	if link.LongURL == "" {
 		c.JSON(400, "please enter a url to shorten")
 		return
 	}
+	result, err := dataProccess(link.LongURL)
+	if err != nil {
+		c.JSON(400, "invalid URL")
+	}
 
 	response := Shorten{
-		LongURL:  longUrl,
-		ShortURL: shortenedUrl,
+		LongURL: link.LongURL,
+		ShortURL: fmt.Sprintf(
+			"Your new link is: %s/%s", SERVER_URL, result),
 	}
 
 	c.JSON(200, response)
 }
-
-// func postReq(c *gin.Context) {
-// 	longURL := c.PostForm("longURL")
-
-// 	if longURL == "" {
-// 		c.String(http.StatusBadRequest, "enter a url to shorten")
-// 		return
-// 	} else {
-// 		result, err := dataProccess(longURL)
-// 		if err != nil {
-// 			c.String(http.StatusBadRequest, "invalid URL")
-// 		} else {
-// 			c.String(http.StatusOK, fmt.Sprintf(
-// 				"Your new link is: %s/%s", SERVER_URL, result))
-// 		}
-// 	}
-
-// }
 
 func main() {
 
