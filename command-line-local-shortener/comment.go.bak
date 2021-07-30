@@ -185,4 +185,22 @@ func main() {
 	}
 }
 
+// func postReq(c *gin.Context) {
+// 	longURL := c.PostForm("longURL")
+
+// 	if longURL == "" {
+// 		c.String(http.StatusBadRequest, "enter a url to shorten")
+// 		return
+// 	} else {
+// 		result, err := dataProccess(longURL)
+// 		if err != nil {
+// 			c.String(http.StatusBadRequest, "invalid URL")
+// 		} else {
+// 			c.String(http.StatusOK, fmt.Sprintf(
+// 				"Your new link is: %s/%s", SERVER_URL, result))
+// 		}
+// 	}
+
+// }
+
 */
