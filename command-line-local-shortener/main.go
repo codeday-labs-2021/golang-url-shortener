@@ -120,6 +120,7 @@ func main() {
 			logrus.Errorf("error while creating urlmap.json: %v", err)
 			os.Exit(1)
 		}
+		ioutil.WriteFile("urlmap.json", []byte("{}"), 0644)
 	} else if err != nil {
 		logrus.Errorf("error while opening map file: %v", err)
 		os.Exit(1)
