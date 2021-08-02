@@ -114,7 +114,13 @@ func postReq(c *gin.Context) {
 func main() {
 
 	jsonFile, err := os.Open("urlmap.json")
-	if err != nil {
+	if os.IsNotExist(err) {
+		jsonFile, err = os.Create("urlmap.json")
+		if err != nil {
+			logrus.Errorf("error while creating urlmap.json: %v", err)
+			os.Exit(1)
+		}
+	} else if err != nil {
 		logrus.Errorf("error while opening map file: %v", err)
 		os.Exit(1)
 	}
