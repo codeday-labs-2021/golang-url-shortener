@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Golang URL shortener</title>
+    <!-- <link rel="stylesheet" href="style.css" />  -->
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <script src="script.js" defer></script>
+  </head>
+
+  <body>
+    <!-- <p>example paragraph<strong>example</strong> example
+        <strong>example</strong>example</p> 
+      action="http://localhost:8080/create" 
+
+
+      -->
+
+    <form onsubmit="myfunction()" id="form-example">
+      <h1 class="d-flex justify-content-center">URL shortener</h1>
+
+      <fieldset class="container">
+        <div class="mb-3">
+          <label for="fname">Custom ID:</label> <br />
+          <input
+            type="text"
+            name="shortID"
+            class="form-control"
+            id="fname"
+            readonly
+          />
+          <br />
+        </div>
+        <div class="mb-3">
+          <label for="lname">URL:</label><br />
+          <input
+            type="text"
+            id="lname"
+            class="form-control"
+            name="longURL"
+            required
+          />
+          <br />
+          <button type="submit" class="btn btn-primary mb-3">
+            Shorten!!!!
+          </button>
+        </div>
+      </fieldset>
+    </form>
+    <div id="newURL"></div>
+  </body>
+</html>
