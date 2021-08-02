@@ -13,13 +13,18 @@
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
     />
+    <script src="script.js" defer></script>
   </head>
 
   <body>
     <!-- <p>example paragraph<strong>example</strong> example
-        <strong>example</strong>example</p>  -->
+        <strong>example</strong>example</p> 
+      action="http://localhost:8080/create" 
 
-    <form action="http://localhost:8080/create" method="POST">
+
+      -->
+
+    <form onsubmit="myfunction()" id="form-example">
       <h1 class="d-flex justify-content-center">URL shortener</h1>
 
       <fieldset class="container">
@@ -50,5 +55,6 @@
         </div>
       </fieldset>
     </form>
+    <div id="newURL"></div>
   </body>
 </html>
