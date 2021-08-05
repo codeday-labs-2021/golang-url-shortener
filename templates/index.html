@@ -46,6 +46,7 @@
         </div>
       </fieldset>
     </form>
+    <div><a href="" id="shortenedURL">Your New Url</a></div>
     <div id="newURL"></div>
     <script type="text/javascript">
       function myfunction(event) {
@@ -79,6 +80,9 @@
           })
           .then(function (responseJSON) {
             console.log(responseJSON);
+            let link = document.getElementById("shortenedURL");
+            link.href = document.location.href + responseJSON.shortUrl;
+            link.innterText = document.location.href + responseJSON.shortUrl;
           })
           .catch(function (error) {
             console.warn(error);
