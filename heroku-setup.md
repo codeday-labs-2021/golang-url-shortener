@@ -18,8 +18,14 @@ $ heroku create
 $ heroku stack:set container
 ```
 
-## Step 4 - View the app
+## Step 4 - Push changes to heroku
 
 ```
-$ heroku stack:set container
+$ git push heroku main
+```
+
+## Step 5 - View the app
+
+```
+$ heroku open
 ```
