@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Golang URL shortener</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body>
+    <!-- <p>example paragraph<strong>example</strong> example
+        <strong>example</strong>example</p> 
+      action="http://localhost:8080/create" 
+
+      -->
+
+    <form id="form-example" onsubmit="myfunction(event)">
+      <h1 class="d-flex justify-content-center">URL shortener</h1>
+
+      <fieldset class="container">
+        <div class="mb-3">
+          <label for="fname">Custom ID:</label> <br />
+          <input
+            type="text"
+            name="shortUrl"
+            class="form-control"
+            id="fname"
+            readonly
+          />
+          <br />
+        </div>
+        <div class="mb-3">
+          <label for="lname">URL:</label><br />
+          <input
+            type="text"
+            id="lname"
+            class="form-control"
+            name="longUrl"
+            required
+          />
+          <br />
+          <button type="submit" id="submit-btn" class="btn btn-primary mb-3">
+            Shorten!!!!
+          </button>
+        </div>
+      </fieldset>
+    </form>
+    <div id="newURL"></div>
+    <script type="text/javascript">
+      function myfunction(event) {
+        var serializeForm = function (form) {
+          var obj = {};
+          var formData = new FormData(form);
+          for (var key of formData.keys()) {
+            obj[key] = formData.get(key);
+          }
+          console.log(obj);
+          return obj;
+        };
+
+        event.preventDefault();
+        data = serializeForm(event.target); // turns form data into obj
+        console.log(JSON.stringify(data));
+        fetch("http://localhost:8080/create", {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            Accept: "application/json",
+            "Content-type": "application/json",
+          },
+        })
+          .then(function (response) {
+            if (response.ok) {
+              console.log(resonse.json);
+              return response.json();
+            }
+            return Promise.reject(response);
+          })
+          .then(function (data) {
+            console.log(data);
+          })
+          .catch(function (error) {
+            console.warn(error);
+            alert(error); //for debugging
+          });
+      }
+    </script>
+  </body>
+</html>
