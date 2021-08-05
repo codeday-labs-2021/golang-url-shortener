@@ -14,7 +14,6 @@ import (
 )
 
 var DATA_ARRAY map[string]string
-var SERVER_URL string = "http://localhost:8080"
 
 type Shorten struct {
 	LongURL  string `json:"longUrl"`
