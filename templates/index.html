@@ -21,14 +21,28 @@
       <fieldset class="container">
         <div class="mb-3">
           <label for="fname">Custom ID:</label> <br />
-          <input type="text" name="shortUrl" class="form-control" id="fname" readonly />
+          <input
+            type="text"
+            name="shortUrl"
+            class="form-control"
+            id="fname"
+            readonly
+          />
           <br />
         </div>
         <div class="mb-3">
           <label for="lname">URL:</label><br />
-          <input type="text" id="lname" class="form-control" name="longUrl" required />
+          <input
+            type="text"
+            id="lname"
+            class="form-control"
+            name="longUrl"
+            required
+          />
           <br />
-          <button type="submit" id="submit-btn" class="btn btn-primary mb-3">Shorten!!!!</button>
+          <button type="submit" id="submit-btn" class="btn btn-primary mb-3">
+            Shorten!!!!
+          </button>
         </div>
       </fieldset>
     </form>
@@ -58,13 +72,13 @@
         })
           .then(function (response) {
             if (response.ok) {
-              console.log(resonse.json);
+              console.log(response.json);
               return response.json();
             }
             return Promise.reject(response);
           })
-          .then(function (data) {
-            console.log(data);
+          .then(function (responseJSON) {
+            console.log(responseJSON);
           })
           .catch(function (error) {
             console.warn(error);
