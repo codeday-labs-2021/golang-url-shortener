@@ -135,7 +135,7 @@ func main() {
 
 	router := gin.Default()
 
-	router.LoadHTMLGlob("~/templates/*")
+	router.LoadHTMLGlob("templates/*")
 	router.GET("/:id", getReq)
 	router.POST("/create", postReq)
 	router.GET("/", func(c *gin.Context) {
