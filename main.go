@@ -142,6 +142,6 @@ func main() {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
 
-	router.Run(":8080")
+	router.Run()
 
 }
