@@ -1,64 +1,40 @@
+//data = {shortUrl:"", longUrl: longURL}
+// obj = {shortUrl: "", longUrl: "http://google.com"}
+var serializeForm = function (form) {
+    var obj = {};
+    var formData = new FormData(form);
+    for (var key of formData.keys()) {
+        obj[key] = formData.get(key);
+    }
+    console.log(obj);
+    return obj;
 
+};
 
-/**/ 
-function myfunction() {
-    data = {shortURL: 'longURL'}
-    fetch('command-line-local-shortener\.urlmap.json', {
+function myfunction(event) {
+    event.preventDefault();
+    data = serializeForm(event.target); // turns form data into obj
+    console.log(JSON.stringify(data));
+    fetch('http://localhost:8080/create', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
         body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(data => {
-        console.log('Success:', data);
-        })
-        .catch((error) => {
-        console.error('Error:', error);
-        });
-    
-   
-}
-
-/*
-function myfunction() {
-    async function postFormDataAsJson({ url, formData }) {
-        const plainFormData = Object.fromEntries(formData.entries());
-        const formDataJsonString = JSON.stringify(plainFormData);
-    
-        const fetchOptions = {
-            method: "post",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: formDataJsonString,
-        };
-        const response = await fetch(url, fetchOptions);
-        if (!response.ok) {
-            const errorMessage = await response.text();
-            throw new Error(errorMessage);
+        headers: {
+            'Accept': 'application/json',
+            'Content-type': 'application/json'
         }
-        return response.json();
-    }
-    
-    async function handleFormSubmit(event) {
-        event.preventDefault();
-        const form = event.currentTarget;
-        const url = form.action;
-        try {
-            const formData = new FormData(form);
-            const responseData = await postFormDataAsJson({url, formData});
-            console.log({ responseData });
-        } catch (error) {
-            console.error(error);
+    }).then(function (response) {
+        if (response.ok) {
+            console.log(resonse.json);
+            return response.json();
         }
-    }
-    
-    const exampleForm = document.getElementById("example-form");
-    
-    exampleForm.addEventListener("submit", handleFormSubmit);
-}
+        return Promise.reject(response);
+    }).then(function (data) {
+        console.log(data);
+    }).catch(function (error) {
+        console.warn(error);
+        alert(error); //for debugging
+    });
+};
 
-*/
+
+
