@@ -46,9 +46,13 @@
         </div>
       </fieldset>
     </form>
-    <div><a href="" id="shortenedURL"></a></div>
-    <div id="newURL"></div>
+    <div id="newURL" class="container"></div>
     <script type="text/javascript">
+      function copyMyText() {
+        var textToCopy = document.getElementById("copyMe");
+        textToCopy.select();
+        document.execCommand("copy");
+      }
       function myfunction(event) {
         var serializeForm = function (form) {
           var obj = {};
@@ -80,9 +84,15 @@
           })
           .then(function (responseJSON) {
             console.log(responseJSON);
-            let link = document.getElementById("shortenedURL");
-            link.href = document.location.href + responseJSON.shortUrl;
-            link.innerText = document.location.href + responseJSON.shortUrl;
+            let link = document.getElementById("newURL");
+
+            link.innerHTML =
+              "<div class='card'> <div class='card-header'> New URL </div> <div class='card-body'>" +
+              "<div class='input-group mb-3'> <input type='text' value='" +
+              document.location.href +
+              responseJSON.shortUrl +
+              "' id='copyMe' class='form-control' readonly > <div class='input-group-append'> <button onclick='copyMyText()' class='btn btn-primary mb-3s'> Copy to Clipboard </button>" +
+              "</div></div></div></div>";
           })
           .catch(function (error) {
             console.warn(error);
