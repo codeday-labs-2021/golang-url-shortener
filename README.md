@@ -5,3 +5,7 @@ A url shortener application built using golang and deployed using heroku and doc
 <p align="center">
     <img src="https://i.imgur.com/jBbwCuU.png" />
 </p>
+
+<p align="center">
+    <img src="https://i.imgur.com/WikFgKo.png" />
+</p>
